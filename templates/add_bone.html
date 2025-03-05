@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>Add New Bone</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label>Bone Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Bone</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

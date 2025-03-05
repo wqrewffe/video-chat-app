@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Elder Dashboard</h2>
+<a href="{{ url_for('add_bone') }}" class="btn btn-success mb-3">Add New Bone</a>
+<h3>Your Listed Bones</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Date Added</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bone in bones %}
+        <tr>
+            <td>{{ bone.name }}</td>
+            <td>{{ bone.description }}</td>
+            <td>{{ bone.date_added.strftime('%Y-%m-%d') }}</td>
+            <td>
+                {% if bone.booked_by %}
+                    Booked
+                {% else %}
+                    Available
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+{% endblock %}

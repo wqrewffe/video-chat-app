@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Fresher Dashboard</h2>
+<h3>Available Bones</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Date Added</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bone in bones %}
+        <tr>
+            <td>{{ bone.name }}</td>
+            <td>{{ bone.description }}</td>
+            <td>{{ bone.date_added.strftime('%Y-%m-%d') }}</td>
+            <td>
+                {% if not bone.booked_by %}
+                    <a href="{{ url_for('book_bone', bone_id=bone.id) }}" class="btn btn-primary">Book</a>
+                {% else %}
+                    Booked
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+{% endblock %}
