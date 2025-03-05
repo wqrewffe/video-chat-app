@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Elder Dashboard</h2>
+<head>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<h2>Donar Dashboard</h2>
 <a href="{{ url_for('add_bone') }}" class="btn btn-success mb-3">Add New Bone</a>
 <h3>Your Listed Bones</h3>
 <table class="table">
