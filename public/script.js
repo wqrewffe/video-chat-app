@@ -15,6 +15,7 @@ function initializePeer() {
     peer.on('open', (id) => {
         myPeerId = id;
         console.log('My peer ID:', id);
+        document.getElementById('mainContainer').innerHTML += `<div>Your Peer ID: ${id}</div>`;
     });
 
     peer.on('call', (call) => {
