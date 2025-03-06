@@ -7,15 +7,30 @@ let currentCall;
 
 // Initialize PeerJS
 function initializePeer() {
+    console.log('Initializing peer...');
     peer = new Peer(undefined, {
-        host: '/',
-        path: '/peerjs'
+        host: 'your-app-name.onrender.com',  // Make sure this is your actual Render domain
+        port: 443,
+        path: '/peerjs',
+        secure: true
     });
 
     peer.on('open', (id) => {
         myPeerId = id;
         console.log('My peer ID:', id);
-        document.getElementById('mainContainer').innerHTML += `<div>Your Peer ID: ${id}</div>`;
+        
+        // Add these lines to make it more visible
+        document.getElementById('userDisplayName').innerHTML += `
+            <div style="margin-top: 10px; background: #333; padding: 10px; border-radius: 5px;">
+                <p style="margin: 0;">Your Peer ID:</p>
+                <p style="word-break: break-all; margin: 5px 0;">${id}</p>
+                <button onclick="copyPeerId()" style="padding: 5px;">Copy ID</button>
+            </div>
+        `;
+    });
+
+    peer.on('error', (error) => {
+        console.error('PeerJS error:', error);
     });
 
     peer.on('call', (call) => {
@@ -152,4 +167,11 @@ document.getElementById('usernameInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         setUsername();
     }
-}); 
+});
+
+// Add this new function for copying peer ID
+function copyPeerId() {
+    navigator.clipboard.writeText(myPeerId)
+        .then(() => alert('Peer ID copied!'))
+        .catch(err => console.error('Failed to copy:', err));
+}
