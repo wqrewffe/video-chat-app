@@ -1,14 +1,21 @@
 const express = require('express');
-const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const http = require('http');
+const { Server } = require('socket.io');
 const { ExpressPeerServer } = require('peer');
+const path = require('path');
 
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+// Serve static files
 app.use(express.static('public'));
 
-// Create peer server
-const peerServer = ExpressPeerServer(http, {
-    debug: true
+// Set up PeerJS server with explicit options
+const peerServer = ExpressPeerServer(server, {
+    debug: true,
+    allow_discovery: true,
+    proxied: true
 });
 
 app.use('/peerjs', peerServer);
@@ -57,6 +64,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 }); 
