@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Chat App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-video"></i>
+                <h1>Video Chat</h1>
+                <p>Connect with anyone, anywhere</p>
+            </div>
+            <div class="login-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="usernameInput" placeholder="Enter your username">
+                </div>
+                <button onclick="setUsername()" class="login-btn">
+                    <span>Join Now</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="main-container" id="mainContainer" style="display: none;">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="user-profile">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 id="userDisplayName"></h3>
+            </div>
+            <div class="sidebar-menu">
+                <button class="menu-item active">
+                    <i class="fas fa-video"></i>
+                    <span>Video Call</span>
+                </button>
+                <button class="menu-item">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-area">
+            <!-- Video Container -->
+            <div class="video-container" id="videoContainer">
+                <div class="video-grid">
+                    <div class="video-box">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-overlay">
+                            <div class="video-label">You</div>
+                        </div>
+                    </div>
+                    <div class="video-box">
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <div class="video-overlay">
+                            <div class="video-label">Remote User</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-controls">
+                    <button id="startVideo" class="control-btn" onclick="startVideo()">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button id="toggleAudio" class="control-btn" onclick="toggleAudio()">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="callButton" class="control-btn primary" onclick="startCall()" disabled>
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button id="endCall" class="control-btn danger" onclick="endCall()" style="display: none;">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2><i class="fas fa-comments"></i> Live Chat</h2>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Messages will be added here -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
+                    <button onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
