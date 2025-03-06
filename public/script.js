@@ -7,48 +7,106 @@ let currentCall;
 
 // Initialize PeerJS
 function initializePeer() {
-    console.log('Initializing peer...');
-    peer = new Peer(undefined, {
-        host: 'your-app-name.onrender.com',  // Make sure this is your actual Render domain
+    console.log('Initializing peer with username:', username);
+    
+    if (peer) {
+        peer.destroy();
+    }
+
+    peer = new Peer(username, {
+        host: '0.peerjs.com',
+        secure: true,
         port: 443,
-        path: '/peerjs',
-        secure: true
+        debug: 3,
+        config: {
+            'iceServers': [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        }
     });
 
     peer.on('open', (id) => {
         myPeerId = id;
-        console.log('My peer ID:', id);
+        console.log('Successfully connected with ID:', id);
         
-        // Add these lines to make it more visible
-        document.getElementById('userDisplayName').innerHTML += `
+        const userDisplay = document.getElementById('userDisplayName');
+        userDisplay.innerHTML = `
             <div style="margin-top: 10px; background: #333; padding: 10px; border-radius: 5px;">
-                <p style="margin: 0;">Your Peer ID:</p>
-                <p style="word-break: break-all; margin: 5px 0;">${id}</p>
-                <button onclick="copyPeerId()" style="padding: 5px;">Copy ID</button>
+                <p style="margin: 0;">Connected as: ${username}</p>
+                <p style="word-break: break-all; margin: 5px 0; color: #4CAF50;">ID: ${id}</p>
             </div>
         `;
     });
 
-    peer.on('error', (error) => {
-        console.error('PeerJS error:', error);
-    });
-
     peer.on('call', (call) => {
-        if (confirm('Incoming call. Accept?')) {
+        console.log('Incoming call from:', call.peer); // Debug log
+        if (confirm(`Incoming call from ${call.peer}. Accept?`)) {
+            console.log('Call accepted, answering with stream:', myStream ? 'exists' : 'missing'); // Debug log
             call.answer(myStream);
             handleCall(call);
         } else {
+            console.log('Call rejected'); // Debug log
             call.close();
+        }
+    });
+
+    peer.on('error', (error) => {
+        console.error('PeerJS error:', error);
+        alert(`Connection error: ${error.type}`);
+    });
+
+    peer.on('disconnected', () => {
+        console.log('Disconnected from server, attempting to reconnect...');
+        peer.reconnect();
+    });
+}
+
+// Fallback function with random ID if username is taken
+function initializePeerWithRandomId() {
+    peer = new Peer(undefined, {
+        host: '0.peerjs.com',
+        secure: true,
+        port: 443,
+        config: {
+            'iceServers': [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
         }
     });
 }
 
+// Function to copy username
+function copyUsername() {
+    navigator.clipboard.writeText(username)
+        .then(() => alert('Username copied to clipboard!'))
+        .catch(err => console.error('Failed to copy:', err));
+}
+
+// Update startCall to use username
+function startCall() {
+    const remoteUsername = prompt('Enter the username to call:');
+    console.log('Attempting to call:', remoteUsername); // Debug log
+    
+    if (remoteUsername && myStream) {
+        console.log('Making call to:', remoteUsername, 'My stream:', myStream ? 'exists' : 'missing');
+        const call = peer.call(remoteUsername, myStream);
+        console.log('Call object created:', call); // Debug log
+        handleCall(call);
+    } else {
+        console.log('Call failed - Stream:', myStream ? 'exists' : 'missing', 'Username:', remoteUsername); // Debug log
+    }
+}
+
 async function startVideo() {
     try {
+        console.log('Requesting media access...'); // Debug log
         myStream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true
         });
+        console.log('Media access granted:', myStream); // Debug log
         document.getElementById('localVideo').srcObject = myStream;
         document.getElementById('callButton').disabled = false;
         document.getElementById('startVideo').disabled = true;
@@ -59,25 +117,27 @@ async function startVideo() {
 }
 
 function handleCall(call) {
+    console.log('Handling call:', call); // Debug log
     currentCall = call;
+    
     call.on('stream', (remoteStream) => {
+        console.log('Received remote stream:', remoteStream); // Debug log
         document.getElementById('remoteVideo').srcObject = remoteStream;
     });
+
+    call.on('error', (error) => {
+        console.error('Call error:', error); // Debug log
+    });
+
     call.on('close', () => {
+        console.log('Call closed'); // Debug log
         document.getElementById('remoteVideo').srcObject = null;
         document.getElementById('callButton').style.display = 'block';
         document.getElementById('endCall').style.display = 'none';
     });
+
     document.getElementById('callButton').style.display = 'none';
     document.getElementById('endCall').style.display = 'block';
-}
-
-function startCall() {
-    const remotePeerId = prompt('Enter the peer ID to call:');
-    if (remotePeerId && myStream) {
-        const call = peer.call(remotePeerId, myStream);
-        handleCall(call);
-    }
 }
 
 function endCall() {
@@ -171,7 +231,9 @@ document.getElementById('usernameInput').addEventListener('keypress', (e) => {
 
 // Add this new function for copying peer ID
 function copyPeerId() {
-    navigator.clipboard.writeText(myPeerId)
-        .then(() => alert('Peer ID copied!'))
-        .catch(err => console.error('Failed to copy:', err));
+    if (myPeerId) {
+        navigator.clipboard.writeText(myPeerId)
+            .then(() => alert('Peer ID copied!'))
+            .catch(err => console.error('Failed to copy:', err));
+    }
 }
